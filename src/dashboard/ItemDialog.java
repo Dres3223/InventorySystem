@@ -48,7 +48,7 @@ public class ItemDialog extends JDialog {
      * @param item The item to edit, or null if adding a new item
      */
     public ItemDialog(JFrame parent, InventoryItem item) {
-        super(parent, item == null ? "Add New Item" : "Edit Item", true);
+        super(parent, item == null ? "Agregar Nuevo Artículo" : "Editar Artículo", true);
         this.originalItem = item;
         this.inventoryManager = new DBInventoryManager();
         
@@ -63,7 +63,7 @@ public class ItemDialog extends JDialog {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
         // Title
-        JLabel titleLabel = new JLabel(item == null ? "Add New Item" : "Edit Item");
+        JLabel titleLabel = new JLabel(item == null ? "Agregar Nuevo Artículo" : "Editar Artículo");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(titleLabel);
@@ -84,22 +84,22 @@ public class ItemDialog extends JDialog {
         }
         
         // Name field
-        formPanel.add(new JLabel("Name:"));
+        formPanel.add(new JLabel("Nombre:"));
         nameField = new JTextField(20);
         formPanel.add(nameField);
         
         // Quantity field
-        formPanel.add(new JLabel("Quantity:"));
+        formPanel.add(new JLabel("Cantidad:"));
         quantityField = new JTextField(20);
         formPanel.add(quantityField);
         
         // Price field
-        formPanel.add(new JLabel("Price:"));
+        formPanel.add(new JLabel("Precio:"));
         priceField = new JTextField(20);
         formPanel.add(priceField);
         
         // Category field with dropdown and scroll
-        formPanel.add(new JLabel("Category:"));
+        formPanel.add(new JLabel("Categoría:"));
         
         // Get all categories from the database
         Set<String> categoriesSet = new HashSet<>();
@@ -135,7 +135,7 @@ public class ItemDialog extends JDialog {
         // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         
-        JButton cancelButton = new JButton("Cancel");
+        JButton cancelButton = new JButton("Cancelar");
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -144,7 +144,7 @@ public class ItemDialog extends JDialog {
             }
         });
         
-        JButton saveButton = new JButton("Save");
+        JButton saveButton = new JButton("Guardar");
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -213,7 +213,7 @@ public class ItemDialog extends JDialog {
             if (originalItem != null) {
                 String id = idField.getText().trim();
                 if (id.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "ID cannot be empty", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "El ID no puede estar vacío", "Error de Validación", JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
             }
@@ -221,43 +221,43 @@ public class ItemDialog extends JDialog {
             // Validate name
             String name = nameField.getText().trim();
             if (name.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Name cannot be empty", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "El nombre no puede estar vacío", "Error de Validación", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
             
             // Validate quantity
             String quantityStr = quantityField.getText().trim();
             if (quantityStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Quantity cannot be empty", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "La cantidad no puede estar vacía", "Error de Validación", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
             int quantity;
             try {
                 quantity = Integer.parseInt(quantityStr);
                 if (quantity < 0) {
-                    JOptionPane.showMessageDialog(this, "Quantity cannot be negative", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "La cantidad no puede ser negativa", "Error de Validación", JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Quantity must be a valid number", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "La cantidad debe ser un número válido", "Error de Validación", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
             
             // Validate price
             String priceStr = priceField.getText().trim();
             if (priceStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Price cannot be empty", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "El precio no puede estar vacío", "Error de Validación", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
             double price;
             try {
                 price = Double.parseDouble(priceStr);
                 if (price < 0) {
-                    JOptionPane.showMessageDialog(this, "Price cannot be negative", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "El precio no puede ser negativo", "Error de Validación", JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Price must be a valid number", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "El precio debe ser un número válido", "Error de Validación", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
             
@@ -265,13 +265,13 @@ public class ItemDialog extends JDialog {
             String category = categoryField.getSelectedItem() != null ? 
                     categoryField.getSelectedItem().toString().trim() : "";
             if (category.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Category cannot be empty", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "La categoría no puede estar vacía", "Error de Validación", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
             
             return true;
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Validation error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error de validación: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
@@ -317,4 +317,4 @@ public class ItemDialog extends JDialog {
             return null;
         }
     }
-} 
+}

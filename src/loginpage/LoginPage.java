@@ -48,7 +48,7 @@ public class LoginPage extends JFrame {
      */
     public LoginPage() {
         // Frame settings
-        setTitle("Login Page");
+        setTitle("Página de Inicio de Sesión");
         setSize(500, 550);
         setLocationRelativeTo(null); // Center the window
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -62,7 +62,7 @@ public class LoginPage extends JFrame {
         Font buttonFont = new Font("Segoe UI", Font.BOLD, 14);
 
         // Title Label
-        JLabel lblTitle = new JLabel("Inventory Management System");
+        JLabel lblTitle = new JLabel("Sistema de Gestión de Inventario");
         lblTitle.setFont(titleFont);
         lblTitle.setBounds(70, 20, 400, 30);
         lblTitle.setForeground(new Color(60, 60, 60));
@@ -108,13 +108,13 @@ public class LoginPage extends JFrame {
         }
 
         // USER label
-        JLabel userLabel = new JLabel("ADMIN");
+        JLabel userLabel = new JLabel("");
         userLabel.setFont(buttonFont);
         userLabel.setBounds(220, 190, 80, 30);
         add(userLabel);
 
         // Username Label
-        JLabel lblUser = new JLabel("Username :");
+        JLabel lblUser = new JLabel("Usuario :");
         lblUser.setFont(labelFont);
         lblUser.setBounds(130, 230, 100, 25);
         add(lblUser);
@@ -126,7 +126,7 @@ public class LoginPage extends JFrame {
         add(txtUser);
 
         // Password Label
-        JLabel lblPass = new JLabel("Password :");
+        JLabel lblPass = new JLabel("Contraseña :");
         lblPass.setFont(labelFont);
         lblPass.setBounds(130, 280, 100, 25);
         add(lblPass);
@@ -138,7 +138,7 @@ public class LoginPage extends JFrame {
         add(txtPass);
 
         // Login Button (custom rounded)
-        RoundedButton btnLogin = new RoundedButton("Login");
+        RoundedButton btnLogin = new RoundedButton("Iniciar Sesión");
         btnLogin.setFont(buttonFont);
         btnLogin.setBackground(new Color(255, 182, 193)); // Soft pink color
         btnLogin.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
@@ -147,7 +147,7 @@ public class LoginPage extends JFrame {
         add(btnLogin);
         
         // Show/Hide Password Checkbox
-        JCheckBox Jc = new JCheckBox("Show Password");
+        JCheckBox Jc = new JCheckBox("Mostrar Contraseña");
         Jc.setBounds(220,320,150,15);
         add(Jc);
 
@@ -174,7 +174,7 @@ public class LoginPage extends JFrame {
                 // Authenticate user (hardcoded for demonstration)
                 if (username.equals("admin") && password.equals("1234")) {
                     try {
-                        JOptionPane.showMessageDialog(null, "Login Successful!");
+                        JOptionPane.showMessageDialog(null, "¡Inicio de sesión exitoso!");
                         System.out.println("Creating dashboard...");
                         InventoryDashboard dashboard = new InventoryDashboard();
                         System.out.println("Setting dashboard visible...");
@@ -184,11 +184,11 @@ public class LoginPage extends JFrame {
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         JOptionPane.showMessageDialog(null,
-                                "Error opening dashboard: " + ex.getMessage(),
+                                "Error al abrir el panel de control: " + ex.getMessage(),
                                 "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(null, "Invalid Credentials!");
+                    JOptionPane.showMessageDialog(null, "¡Credenciales inválidas!");
                 }
             }
         });

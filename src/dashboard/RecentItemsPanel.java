@@ -29,7 +29,7 @@ public class RecentItemsPanel extends JPanel {
         setBackground(Color.WHITE);
 
         // Title panel
-        JLabel titleLabel = new JLabel("Recently Modified Items");
+        JLabel titleLabel = new JLabel("Artículos Modificados Recientemente");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         titleLabel.setForeground(new Color(25, 118, 210));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
@@ -73,7 +73,7 @@ public class RecentItemsPanel extends JPanel {
         itemsContainer.removeAll();
         
         if (recentItems.isEmpty()) {
-            JLabel emptyLabel = new JLabel("No recent items", SwingConstants.CENTER);
+            JLabel emptyLabel = new JLabel("No hay artículos recientes", SwingConstants.CENTER);
             emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 14));
             emptyLabel.setForeground(new Color(150, 150, 150));
             emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -133,10 +133,10 @@ public class RecentItemsPanel extends JPanel {
         JPanel detailsPanel = new JPanel(new GridLayout(2, 2, 10, 2));
         detailsPanel.setOpaque(false);
         
-        detailsPanel.add(createDetailLabel("Quantity:", String.valueOf(item.getQuantity())));
-        detailsPanel.add(createDetailLabel("Price:", String.format("Rs %.2f", item.getPrice())));
-        detailsPanel.add(createDetailLabel("Category:", item.getCategory()));
-        detailsPanel.add(createDetailLabel("Value:", String.format("Rs %.2f", item.getPrice() * item.getQuantity())));
+        detailsPanel.add(createDetailLabel("Cantidad:", String.valueOf(item.getQuantity())));
+        detailsPanel.add(createDetailLabel("Precio:", String.format("$ %.2f", item.getPrice())));
+        detailsPanel.add(createDetailLabel("Categoría:", item.getCategory()));
+        detailsPanel.add(createDetailLabel("Valor:", String.format("$ %.2f", item.getPrice() * item.getQuantity())));
         
         panel.add(headerPanel, BorderLayout.NORTH);
         panel.add(detailsPanel, BorderLayout.CENTER);
@@ -160,4 +160,4 @@ public class RecentItemsPanel extends JPanel {
         
         return panel;
     }
-} 
+}

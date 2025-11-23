@@ -32,7 +32,7 @@ public class DBConnection {
     
     // Set your actual MySQL credentials here
     private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "Rohan@5054"; 
+    private static final String DB_PASSWORD = "1234"; 
     
     private static Connection connection = null;
     

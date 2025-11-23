@@ -3,6 +3,7 @@ package dashboard;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
+import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.LinkedList;
@@ -12,6 +13,8 @@ import java.util.Set;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import database.DBInventoryManager;
+import dashboard.InventoryItem;
+import dashboard.ItemDialog;
 import java.util.Collections;
 import java.io.PrintWriter;
 import java.io.FileWriter;
@@ -85,7 +88,7 @@ public class InventoryDashboard extends JFrame {
     }
 
     private void initializeUI() {
-        setTitle("Inventory Management System");
+        setTitle("Sistema de Gestión de Inventario");
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -97,9 +100,14 @@ public class InventoryDashboard extends JFrame {
             // Continue without setting the icon
         }
         
-        // Set modern look and feel for entire application
+        // Set basic look and feel for better button visibility
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            // Usar el Look and Feel básico de Java en lugar del sistema
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            // Configurar propiedades de los botones para mejor visibilidad
+            UIManager.put("Button.background", Color.WHITE);
+            UIManager.put("Button.foreground", Color.BLACK);
+            UIManager.put("Button.font", new Font("Segoe UI", Font.BOLD, 14));
             UIManager.put("Button.arc", 15);
             UIManager.put("Component.arc", 15);
             UIManager.put("ProgressBar.arc", 15);
@@ -126,20 +134,20 @@ public class InventoryDashboard extends JFrame {
         Font menuFont = new Font("Segoe UI", Font.BOLD, 13);
 
         // File Menu
-        JMenu fileMenu = createStyledMenu("File", menuForeground, menuFont);
-        JMenuItem exportItem = createStyledMenuItem("Export Data", menuFont, e -> exportData());
-        JMenuItem exitItem = createStyledMenuItem("Exit", menuFont, e -> System.exit(0));
+        JMenu fileMenu = createStyledMenu("Archivo", menuForeground, menuFont);
+        JMenuItem exportItem = createStyledMenuItem("Exportar Datos", menuFont, e -> exportData());
+        JMenuItem exitItem = createStyledMenuItem("Salir", menuFont, e -> System.exit(0));
 
         fileMenu.add(exportItem);
         fileMenu.addSeparator();
         fileMenu.add(exitItem);
 
         // Operations Menu
-        JMenu operationsMenu = createStyledMenu("Operations", menuForeground, menuFont);
-        JMenuItem addItem = createStyledMenuItem("Add Item", menuFont, e -> showAddItemDialog());
-        JMenuItem updateItem = createStyledMenuItem("Edit Item", menuFont, e -> showEditItemDialog());
-        JMenuItem deleteItem = createStyledMenuItem("Delete Item", menuFont, e -> deleteItem());
-        JMenuItem refreshItem = createStyledMenuItem("Refresh Data", menuFont, e -> refreshInventoryTable());
+        JMenu operationsMenu = createStyledMenu("Operaciones", menuForeground, menuFont);
+        JMenuItem addItem = createStyledMenuItem("Agregar Artículo", menuFont, e -> showAddItemDialog());
+        JMenuItem updateItem = createStyledMenuItem("Editar Artículo", menuFont, e -> showEditItemDialog());
+        JMenuItem deleteItem = createStyledMenuItem("Eliminar Artículo", menuFont, e -> deleteItem());
+        JMenuItem refreshItem = createStyledMenuItem("Actualizar Datos", menuFont, e -> refreshInventoryTable());
 
         operationsMenu.add(addItem);
         operationsMenu.add(updateItem);
@@ -148,17 +156,17 @@ public class InventoryDashboard extends JFrame {
         operationsMenu.add(refreshItem);
 
         // Reports Menu
-        JMenu reportsMenu = createStyledMenu("Reports", menuForeground, menuFont);
-        JMenuItem stockReport = createStyledMenuItem("Stock Report", menuFont, e -> generateStockReport());
-        JMenuItem valueReport = createStyledMenuItem("Inventory Value", menuFont, e -> generateValueReport());
+        JMenu reportsMenu = createStyledMenu("Informes", menuForeground, menuFont);
+        JMenuItem stockReport = createStyledMenuItem("Informe de Stock", menuFont, e -> generateStockReport());
+        JMenuItem valueReport = createStyledMenuItem("Valor del Inventario", menuFont, e -> generateValueReport());
 
         reportsMenu.add(stockReport);
         reportsMenu.add(valueReport);
         
         // History Menu
-        historyMenu = createStyledMenu("History", menuForeground, menuFont);
-        JMenuItem viewAllHistoryItem = createStyledMenuItem("View Recent History", menuFont, e -> showAllHistory());
-        JMenuItem clearHistoryItem = createStyledMenuItem("Clear History", menuFont, e -> clearHistory());
+        historyMenu = createStyledMenu("Historial", menuForeground, menuFont);
+        JMenuItem viewAllHistoryItem = createStyledMenuItem("Ver Historial Reciente", menuFont, e -> showAllHistory());
+        JMenuItem clearHistoryItem = createStyledMenuItem("Borrar Historial", menuFont, e -> clearHistory());
         historyMenu.add(viewAllHistoryItem);
         historyMenu.addSeparator();
         historyMenu.add(clearHistoryItem);
@@ -211,10 +219,10 @@ public class InventoryDashboard extends JFrame {
         panel.setOpaque(false);
 
         // Create and add all summary cards with modern colors
-        panel.add(createSummaryCard("Total Products", "0", new Color(33, 150, 243), "\uf07a")); // Shopping cart icon
-        panel.add(createSummaryCard("Out of Stock", "0", new Color(244, 67, 54), "\uf06a")); // Exclamation icon
-        panel.add(createSummaryCard("Categories", "0", new Color(76, 175, 80), "\uf0ca")); // List icon
-        panel.add(createSummaryCard("Total Value", "Rs 0.00", new Color(156, 39, 176), "\uf157")); // Rupee icon
+        panel.add(createSummaryCard("Total Productos", "0", new Color(33, 150, 243), "\uf07a")); // Shopping cart icon
+        panel.add(createSummaryCard("Sin Stock", "0", new Color(244, 67, 54), "\uf06a")); // Exclamation icon
+        panel.add(createSummaryCard("Categorías", "0", new Color(76, 175, 80), "\uf0ca")); // List icon
+        panel.add(createSummaryCard("Valor Total", "$ 0.00", new Color(156, 39, 176), "\uf157")); // Peso colombiano icon
 
         return panel;
     }
@@ -299,10 +307,10 @@ public class InventoryDashboard extends JFrame {
 
         // Store the reference to update later
         switch(title) {
-            case "Total Products": totalProductsLabel = valueLabel; break;
-            case "Out of Stock": outOfStockLabel = valueLabel; break;
-            case "Categories": categoriesLabel = valueLabel; break;
-            case "Total Value": totalValueLabel = valueLabel; break;
+            case "Total Productos": totalProductsLabel = valueLabel; break;
+            case "Sin Stock": outOfStockLabel = valueLabel; break;
+            case "Categorías": categoriesLabel = valueLabel; break;
+            case "Valor Total": totalValueLabel = valueLabel; break;
         }
 
         card.add(headerPanel, BorderLayout.NORTH);
@@ -348,9 +356,11 @@ public class InventoryDashboard extends JFrame {
         panel.setOpaque(false);
 
         // Table title
-        JLabel tableTitle = new JLabel("Inventory Items");
-        tableTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        JLabel tableTitle = new JLabel("Artículos del Inventario");
+        tableTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
         tableTitle.setForeground(new Color(25, 118, 210));
+        tableTitle.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        tableTitle.setHorizontalAlignment(SwingConstants.LEFT);
         
         // Filter Panel with search
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
@@ -360,7 +370,7 @@ public class InventoryDashboard extends JFrame {
         // Search field
         JPanel searchPanel = new JPanel(new BorderLayout(10, 0));
         searchPanel.setOpaque(false);
-        JLabel searchLabel = new JLabel("Search:");
+        JLabel searchLabel = new JLabel("Buscar:");
         searchLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         
         searchField = new JTextField(15);
@@ -386,20 +396,23 @@ public class InventoryDashboard extends JFrame {
                 return false;
             }
         });
-        searchField.setToolTipText("Search by item name or ID");
+        searchField.setToolTipText("Buscar por nombre o ID del artículo");
         
-        JButton searchButton = new JButton("Search");
+        JButton searchButton = new JButton("Buscar");
         searchButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        searchButton.setBackground(new Color(220, 53, 69)); // Red color
-        searchButton.setForeground(Color.RED);
+        searchButton.setBackground(new Color(80, 80, 80)); // Gris oscuro profesional
+        searchButton.setForeground(Color.WHITE);
+
         searchButton.setFocusPainted(false);
+        // Añadir ícono de lupa
+        searchButton.setIcon(createSearchIcon());
         searchButton.setBorder(new AbstractBorder() {
             @Override
             public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                g2d.setColor(new Color(200, 35, 51));
+                g2d.setColor(new Color(60, 60, 60)); // Borde del mismo tono pero más oscuro
                 g2d.drawRoundRect(x, y, width-1, height-1, 15, 15);
                 
                 g2d.dispose();
@@ -421,10 +434,10 @@ public class InventoryDashboard extends JFrame {
         // Add hover effect to search button
         searchButton.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                searchButton.setBackground(new Color(200, 35, 51)); // Darker red on hover
+                searchButton.setBackground(new Color(60, 60, 60)); // Slightly darker on hover
             }
             public void mouseExited(MouseEvent e) {
-                searchButton.setBackground(new Color(220, 53, 69));
+                searchButton.setBackground(new Color(80, 80, 80)); // Back to original color
             }
         });
         
@@ -451,7 +464,7 @@ public class InventoryDashboard extends JFrame {
         // Category filter
         JPanel categoryPanel = new JPanel(new BorderLayout(5, 0));
         categoryPanel.setOpaque(false);
-        JLabel categoryLabel = new JLabel("Category:");
+        JLabel categoryLabel = new JLabel("Categoría:");
         categoryLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         
         categoryFilter = new JComboBox<>(new DefaultComboBoxModel<String>() {
@@ -486,9 +499,9 @@ public class InventoryDashboard extends JFrame {
             }
         });
         categoryFilter.setPreferredSize(new Dimension(150, 30));
-        categoryFilter.addItem("All Categories");
+        categoryFilter.addItem("Todas las Categorías");
         categoryFilter.addActionListener(e -> filterTable());
-        categoryFilter.setToolTipText("Filter items by category");
+        categoryFilter.setToolTipText("Filtrar artículos por categoría");
         
         // Set maximum row count to enable scrolling in dropdown
         categoryFilter.setMaximumRowCount(5);
@@ -508,7 +521,7 @@ public class InventoryDashboard extends JFrame {
         panel.add(headerPanel, BorderLayout.NORTH);
 
         // Table
-        String[] columns = {"ID", "Name", "Quantity", "Price", "Category", "Value"};
+        String[] columns = {"ID", "Nombre", "Cantidad", "Precio", "Categoría", "Valor"};
         tableModel = new DefaultTableModel(columns, 0) {
             private Set<String> tableIds = new HashSet<>();
             
@@ -619,6 +632,230 @@ public class InventoryDashboard extends JFrame {
         return outerPanel;
     }
 
+    // Métodos para crear íconos
+    private Icon createSearchIcon() {
+        return new Icon() {
+            @Override
+            public void paintIcon(Component c, Graphics g, int x, int y) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(Color.WHITE);
+                
+                // Dibujar círculo de la lupa
+                g2d.drawOval(x+1, y+1, 10, 10);
+                // Dibujar mango de la lupa
+                g2d.setStroke(new BasicStroke(2));
+                g2d.drawLine(x+9, y+9, x+14, y+14);
+                
+                g2d.dispose();
+            }
+            
+            @Override
+            public int getIconWidth() {
+                return 16;
+            }
+            
+            @Override
+            public int getIconHeight() {
+                return 16;
+            }
+        };
+    }
+    
+    private Icon createAddIcon() {
+        return new Icon() {
+            @Override
+            public void paintIcon(Component c, Graphics g, int x, int y) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(Color.WHITE);
+                g2d.setStroke(new BasicStroke(2));
+                
+                // Dibujar símbolo +
+                g2d.drawLine(x+3, y+8, x+13, y+8); // horizontal
+                g2d.drawLine(x+8, y+3, x+8, y+13); // vertical
+                
+                g2d.dispose();
+            }
+            
+            @Override
+            public int getIconWidth() {
+                return 16;
+            }
+            
+            @Override
+            public int getIconHeight() {
+                return 16;
+            }
+        };
+    }
+    
+    private Icon createEditIcon() {
+        return new Icon() {
+            @Override
+            public void paintIcon(Component c, Graphics g, int x, int y) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(Color.WHITE);
+                g2d.setStroke(new BasicStroke(1.5f));
+                
+                // Dibujar lápiz
+                int[] xPoints = {x+2, x+5, x+14, x+11};
+                int[] yPoints = {y+14, y+11, y+2, y+5};
+                g2d.drawPolygon(xPoints, yPoints, 4);
+                
+                g2d.dispose();
+            }
+            
+            @Override
+            public int getIconWidth() {
+                return 16;
+            }
+            
+            @Override
+            public int getIconHeight() {
+                return 16;
+            }
+        };
+    }
+    
+    private Icon createDeleteIcon() {
+        return new Icon() {
+            @Override
+            public void paintIcon(Component c, Graphics g, int x, int y) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(Color.WHITE);
+                g2d.setStroke(new BasicStroke(2));
+                
+                // Dibujar papelera
+                g2d.drawRect(x+3, y+5, 10, 10); // cuerpo
+                g2d.drawLine(x+2, y+5, x+14, y+5); // tapa
+                g2d.drawLine(x+6, y+2, x+10, y+2); // asa
+                g2d.drawLine(x+6, y+2, x+6, y+5); // conexión izquierda
+                g2d.drawLine(x+10, y+2, x+10, y+5); // conexión derecha
+                
+                // Líneas interiores
+                g2d.drawLine(x+6, y+8, x+6, y+12);
+                g2d.drawLine(x+10, y+8, x+10, y+12);
+                
+                g2d.dispose();
+            }
+            
+            @Override
+            public int getIconWidth() {
+                return 16;
+            }
+            
+            @Override
+            public int getIconHeight() {
+                return 16;
+            }
+        };
+    }
+    
+    private Icon createRefreshIcon() {
+        return new Icon() {
+            @Override
+            public void paintIcon(Component c, Graphics g, int x, int y) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(Color.WHITE);
+                g2d.setStroke(new BasicStroke(2));
+                
+                // Dibujar flecha circular
+                g2d.drawArc(x+2, y+2, 12, 12, 45, 270);
+                
+                // Dibujar punta de flecha
+                g2d.drawLine(x+14, y+8, x+14, y+4);
+                g2d.drawLine(x+14, y+4, x+10, y+4);
+                
+                g2d.dispose();
+            }
+            
+            @Override
+            public int getIconWidth() {
+                return 16;
+            }
+            
+            @Override
+            public int getIconHeight() {
+                return 16;
+            }
+        };
+    }
+
+    // Clase personalizada para botones con mejor visibilidad
+    private class CustomButton extends JButton {
+        public CustomButton(String text, Color bgColor, Icon icon) {
+            super(text);
+            setFont(new Font("Segoe UI", Font.BOLD, 14));
+            setBackground(bgColor);
+            setForeground(Color.WHITE);
+            setFocusPainted(false);
+            setContentAreaFilled(true);
+            setOpaque(true);
+            setIcon(icon);
+            setIconTextGap(10);
+            setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.WHITE, 2),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+            ));
+            
+            // Asegurar que el texto siempre sea visible
+            setUI(new BasicButtonUI() {
+                @Override
+                public void paint(Graphics g, JComponent c) {
+                    AbstractButton b = (AbstractButton) c;
+                    ButtonModel model = b.getModel();
+                    
+                    // Pintar el fondo
+                    g.setColor(b.getBackground());
+                    g.fillRect(0, 0, c.getWidth(), c.getHeight());
+                    
+                    // Pintar el borde
+                    g.setColor(Color.WHITE);
+                    g.drawRect(0, 0, c.getWidth()-1, c.getHeight()-1);
+                    
+                    // Pintar el ícono
+                    Icon icon = b.getIcon();
+                    if (icon != null) {
+                        int iconWidth = icon.getIconWidth();
+                        int iconHeight = icon.getIconHeight();
+                        int textWidth = g.getFontMetrics().stringWidth(b.getText());
+                        int totalWidth = iconWidth + b.getIconTextGap() + textWidth;
+                        int x = (c.getWidth() - totalWidth) / 2;
+                        int y = (c.getHeight() - iconHeight) / 2;
+                        icon.paintIcon(c, g, x, y);
+                        
+                        // Pintar el texto
+                        FontMetrics fm = g.getFontMetrics();
+                        String text = b.getText();
+                        int textHeight = fm.getHeight();
+                        int textX = x + iconWidth + b.getIconTextGap();
+                        int textY = (c.getHeight() - textHeight) / 2 + fm.getAscent();
+                        
+                        g.setColor(Color.WHITE);
+                        g.setFont(b.getFont());
+                        g.drawString(text, textX, textY);
+                    } else {
+                        // Pintar solo el texto si no hay ícono
+                        FontMetrics fm = g.getFontMetrics();
+                        String text = b.getText();
+                        int textWidth = fm.stringWidth(text);
+                        int textHeight = fm.getHeight();
+                        int x = (c.getWidth() - textWidth) / 2;
+                        int y = (c.getHeight() - textHeight) / 2 + fm.getAscent();
+                        
+                        g.setColor(Color.WHITE);
+                        g.setFont(b.getFont());
+                        g.drawString(text, x, y);
+                    }
+                }
+            });
+        }
+    }
+    
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         panel.setOpaque(false);
@@ -627,12 +864,7 @@ public class InventoryDashboard extends JFrame {
         this.buttonPanel = panel;
 
         // Create buttons for operations with direct ActionListener references for debugging
-        JButton addBtn = new JButton("Add Item");
-        addBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        addBtn.setBackground(new Color(25, 135, 84));
-        addBtn.setForeground(Color.WHITE);
-        addBtn.setFocusPainted(false);
-        addBtn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        CustomButton addBtn = new CustomButton("Agregar Artículo", new Color(70, 90, 110), createAddIcon());
         addBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -641,12 +873,7 @@ public class InventoryDashboard extends JFrame {
             }
         });
         
-        JButton updateBtn = new JButton("Edit Item");
-        updateBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        updateBtn.setBackground(new Color(255, 152, 0));
-        updateBtn.setForeground(Color.WHITE);
-        updateBtn.setFocusPainted(false);
-        updateBtn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        CustomButton updateBtn = new CustomButton("Editar Artículo", new Color(70, 90, 110), createEditIcon());
         updateBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -655,12 +882,7 @@ public class InventoryDashboard extends JFrame {
             }
         });
         
-        JButton deleteBtn = new JButton("Delete Item");
-        deleteBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        deleteBtn.setBackground(new Color(220, 53, 69));
-        deleteBtn.setForeground(Color.WHITE);
-        deleteBtn.setFocusPainted(false);
-        deleteBtn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        CustomButton deleteBtn = new CustomButton("Eliminar Artículo", new Color(70, 90, 110), createDeleteIcon());
         deleteBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -669,12 +891,7 @@ public class InventoryDashboard extends JFrame {
             }
         });
         
-        JButton refreshBtn = new JButton("Refresh");
-        refreshBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        refreshBtn.setBackground(new Color(13, 110, 253));
-        refreshBtn.setForeground(Color.WHITE);
-        refreshBtn.setFocusPainted(false);
-        refreshBtn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        CustomButton refreshBtn = new CustomButton("Actualizar", new Color(70, 90, 110), createRefreshIcon());
         refreshBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -705,7 +922,7 @@ public class InventoryDashboard extends JFrame {
             
             if (newItem == null) {
                 System.out.println("ERROR: Item creation failed");
-                showMessage("Failed to create item", "Error", JOptionPane.ERROR_MESSAGE);
+                showMessage("Error al crear el artículo", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
@@ -718,11 +935,11 @@ public class InventoryDashboard extends JFrame {
             if (inventoryManager.addItem(newItem)) {
                 System.out.println("Item added successfully to inventory manager");
                 refreshInventoryTable();
-                showMessage("Item added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                showMessage("Artículo agregado exitosamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 addToHistory("Added", newItem);
             } else {
                 System.out.println("Failed to add item to inventory manager");
-                showMessage("Failed to add item. ID may already exist.", "Error", JOptionPane.ERROR_MESSAGE);
+                showMessage("Error al agregar el artículo. El ID puede ya existir.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } else {
             System.out.println("Dialog cancelled");
@@ -734,7 +951,7 @@ public class InventoryDashboard extends JFrame {
         int row = inventoryTable.getSelectedRow();
         if (row < 0) {
             System.out.println("No row selected");
-            showMessage("Please select an item to edit", "Warning", JOptionPane.WARNING_MESSAGE);
+            showMessage("Por favor seleccione un artículo para editar", "Advertencia", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -755,18 +972,18 @@ public class InventoryDashboard extends JFrame {
                 if (inventoryManager.updateItem(updatedItem)) {
                     System.out.println("Item updated successfully");
                     refreshInventoryTable();
-                    showMessage("Item updated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    showMessage("Artículo actualizado exitosamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                     addToHistory("Updated", updatedItem);
                 } else {
                     System.out.println("Failed to update item");
-                    showMessage("Failed to update item", "Error", JOptionPane.ERROR_MESSAGE);
+                    showMessage("Error al actualizar el artículo", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 System.out.println("Dialog cancelled");
             }
         } else {
             System.out.println("Item not found");
-            showMessage("Item not found", "Error", JOptionPane.ERROR_MESSAGE);
+            showMessage("Artículo no encontrado", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -775,7 +992,7 @@ public class InventoryDashboard extends JFrame {
         int row = inventoryTable.getSelectedRow();
         if (row < 0) {
             System.out.println("No row selected");
-            showMessage("Please select an item to delete", "Warning", JOptionPane.WARNING_MESSAGE);
+            showMessage("Por favor seleccione un artículo para eliminar", "Advertencia", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -786,8 +1003,8 @@ public class InventoryDashboard extends JFrame {
         
         int confirm = JOptionPane.showConfirmDialog(
                 this,
-                "Are you sure you want to delete this item?",
-                "Confirm Delete",
+                "¿Está seguro de que desea eliminar este artículo?",
+                "Confirmar Eliminación",
                 JOptionPane.YES_NO_OPTION
         );
         
@@ -796,13 +1013,13 @@ public class InventoryDashboard extends JFrame {
             if (inventoryManager.deleteItem(id)) {
                 System.out.println("Item deleted successfully");
                 refreshInventoryTable();
-                showMessage("Item deleted successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                showMessage("Artículo eliminado exitosamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 if (item != null) {
                     addToHistory("Deleted", item);
                 }
             } else {
                 System.out.println("Failed to delete item");
-                showMessage("Failed to delete item", "Error", JOptionPane.ERROR_MESSAGE);
+                showMessage("Error al eliminar el artículo", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } else {
             System.out.println("Delete cancelled");
@@ -912,7 +1129,7 @@ public class InventoryDashboard extends JFrame {
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 if (value instanceof Double) {
-                    value = String.format("Rs %.2f", (Double) value);
+                    value = String.format("$ %.2f", (Double) value);
                 }
                 return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
@@ -923,7 +1140,7 @@ public class InventoryDashboard extends JFrame {
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 if (value instanceof Double) {
-                    value = String.format("Rs %.2f", (Double) value);
+                    value = String.format("$ %.2f", (Double) value);
                 }
                 return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
@@ -994,7 +1211,7 @@ public class InventoryDashboard extends JFrame {
         double totalValue = items.stream()
                 .mapToDouble(item -> item.getQuantity() * item.getPrice())
                 .sum();
-        totalValueLabel.setText(String.format("Rs. %.2f", totalValue));
+        totalValueLabel.setText(String.format("$ %.2f", totalValue));
     }
 
     // Utility Methods
@@ -1070,12 +1287,12 @@ public class InventoryDashboard extends JFrame {
             double value = item.getQuantity() * item.getPrice();
             totalValue += value;
             
-            report.append(String.format("%-10s %-25s %-15d Rs %-11.2f Rs %-11.2f\n",
+            report.append(String.format("%-10s %-25s %-15d $ %-11.2f $ %-11.2f\n",
                     item.getId(), item.getName(), item.getQuantity(), item.getPrice(), value));
         }
         
         report.append("---------------------------------------------------------------------------------\n");
-        report.append(String.format("%67s Rs %-11.2f\n", "TOTAL INVENTORY VALUE:", totalValue));
+        report.append(String.format("%67s $ %-11.2f\n", "VALOR TOTAL DEL INVENTARIO:", totalValue));
         
         report.append("\n\nReport generated on: " + java.time.LocalDateTime.now().format(
                 java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -1249,9 +1466,9 @@ public class InventoryDashboard extends JFrame {
                 {"ID", record.item.getId()},
                 {"Name", record.item.getName()},
                 {"Quantity", record.item.getQuantity()},
-                {"Price", String.format("Rs %.2f", record.item.getPrice())},
+                {"Precio", String.format("$ %.2f", record.item.getPrice())},
                 {"Category", record.item.getCategory()},
-                {"Total Value", String.format("Rs %.2f", record.item.getQuantity() * record.item.getPrice())}
+                {"Valor Total", String.format("$ %.2f", record.item.getQuantity() * record.item.getPrice())}
         };
         
         JTable detailsTable = new JTable(data, columns);
@@ -1379,7 +1596,7 @@ public class InventoryDashboard extends JFrame {
         content.append("------------------------------------------------------------------------------------------------\n");
         
         for (OperationRecord record : operationHistory) {
-            content.append(String.format("%-25s %-15s %-10s %-25s %-15s %-10d Rs %-10.2f\n",
+            content.append(String.format("%-25s %-15s %-10s %-25s %-15s %-10d $ %-10.2f\n",
                     record.timestamp,
                     record.operation,
                     record.item.getId(),
@@ -1410,7 +1627,7 @@ public class InventoryDashboard extends JFrame {
                     record.item.getName(),
                     record.item.getCategory(),
                     record.item.getQuantity(),
-                    String.format("Rs %.2f", record.item.getPrice())
+                    String.format("$ %.2f", record.item.getPrice())
                 };
                 historyTableModel.addRow(row);
             }
